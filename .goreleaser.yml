@@ -11,6 +11,8 @@ builds:
 
 archives:
   - format: zip
+  - files:
+      - none*
 
 checksum:
   name_template: "checksums.txt"
