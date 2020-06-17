@@ -11,7 +11,7 @@ builds:
 
 archives:
   - format: zip
-  - files:
+    files:
       - none*
 
 checksum:
