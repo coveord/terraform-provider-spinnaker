@@ -76,6 +76,7 @@ func Provider() terraform.ResourceProvider {
 			"spinnaker_pipeline":            pipelineResource(),
 			"spinnaker_pipeline_bake_stage": pipelineBakeStageResource(),
 
+			"spinnaker_pipeline_bake_manifest_stage":        pipelineBakeManifestStageResource(),
 			"spinnaker_pipeline_canary_analysis_stage":      pipelineCanaryAnalysisStageResource(),
 			"spinnaker_pipeline_check_preconditions_stage":  pipelineCheckPreconditionsStageResource(),
 			"spinnaker_pipeline_delete_manifest_stage":      pipelineDeleteManifestStageResource(),
@@ -94,6 +95,7 @@ func Provider() terraform.ResourceProvider {
 			"spinnaker_pipeline_jenkins_stage":               pipelineJenkinsStageResource(),
 			"spinnaker_pipeline_manual_judgment_stage":       pipelineManualJudgementStageResource(),
 			"spinnaker_pipeline_notification":                pipelineNotificationResource(),
+			"spinnaker_pipeline_patch_manifest_stage":        pipelinePatchManifestStageResource(),
 			"spinnaker_pipeline_pipeline_stage":              pipelinePipelineResource(),
 			"spinnaker_pipeline_resize_server_group_stage":   pipelineResizeServerGroupStageResource(),
 			"spinnaker_pipeline_rollback_cluster_stage":      pipelineRollbackClusterStageResource(),
