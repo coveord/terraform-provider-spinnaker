@@ -24,48 +24,6 @@ func pipelineDestroyServerGroupStageResource() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: resourcePipelineImporter,
 		},
-
-		Schema: stageResource(map[string]*schema.Schema{
-			"cloud_provider": &schema.Schema{
-				Type:        schema.TypeString,
-				Description: "Cloud provider to use (aws)",
-				Optional:    true,
-			},
-			"cloud_provider_type": &schema.Schema{
-				Type:        schema.TypeString,
-				Description: "Cloud provider to use (aws)",
-				Optional:    true,
-			},
-			"cluster": &schema.Schema{
-				Type:        schema.TypeString,
-				Description: "Name of the cluster",
-				Required:    true,
-			},
-			"credentials": &schema.Schema{
-				Type:        schema.TypeString,
-				Description: "Name of the credentials to use",
-				Optional:    true,
-			},
-			"moniker": &schema.Schema{
-				Type:        schema.TypeList,
-				Description: "Name to attach to cluster",
-				Optional:    true,
-				MaxItems:    1,
-				Elem:        monikerResource(),
-			},
-			"regions": &schema.Schema{
-				Type:        schema.TypeList,
-				Description: "regions to target (us-east-1)",
-				Optional:    true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-			},
-			"target": &schema.Schema{
-				Type:        schema.TypeString,
-				Description: "Which server group to destroy (oldest_asg_dynamic, ancestor_asg_dynamic, current_asg_dynamic)",
-				Optional:    true,
-			},
-		}),
+		Schema: targetServerGroupStageResource(),
 	}
 }

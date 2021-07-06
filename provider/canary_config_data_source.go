@@ -12,12 +12,12 @@ func canaryConfigDataSource() *schema.Resource {
 		Read: canaryConfigDataSourceRead,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:        schema.TypeString,
 				Description: "Canary Config Name",
 				Required:    true,
 			},
-			"applications": &schema.Schema{
+			"applications": {
 				Type:        schema.TypeList,
 				Description: "Applications",
 				Optional:    true,
@@ -25,32 +25,32 @@ func canaryConfigDataSource() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:        schema.TypeString,
 				Description: "Canary Config Description",
 				Optional:    true,
 			},
-			"metric": &schema.Schema{
+			"metric": {
 				Type:        schema.TypeList,
 				Description: "Canary Metrics",
 				Optional:    true,
 				Elem:        canaryConfigMetricResource(),
 			},
-			"config_version": &schema.Schema{
+			"config_version": {
 				Type:        schema.TypeString,
 				Description: "Canary Config Version",
 				Optional:    true,
 				Default:     "1",
 			},
 			// Templates     map[string]interface{}  `mapstructure:"templates"`
-			"classifier": &schema.Schema{
+			"classifier": {
 				Type:        schema.TypeList,
 				Description: "Canary Classifier",
 				MaxItems:    1,
 				Optional:    true,
 				Elem:        canaryConfigClassifierResource(),
 			},
-			"judge": &schema.Schema{
+			"judge": {
 				Type:        schema.TypeList,
 				Description: "Canary Judge",
 				MaxItems:    1,
@@ -64,23 +64,23 @@ func canaryConfigDataSource() *schema.Resource {
 func canaryConfigDataSourceRead(d *schema.ResourceData, m interface{}) error {
 	name := d.Get("name").(string)
 
-	log.Println("[DEBUG] Importing canary config", name)
+	log.Printf("[DEBUG] Importing canary config: %s\n", name)
 	canaryConfigService := m.(*Services).CanaryConfigService
 	canaryConfigs, err := canaryConfigService.GetCanaryConfigs()
 	if err != nil {
-		log.Println("[WARN] No canary configs found:", err)
+		log.Printf("[WARN] No canary configs found: %s\n", err)
 		return err
 	}
 
 	for _, c := range *canaryConfigs {
 		if c.Name == name {
-			log.Println("[DEBUG] Imported canary config", c.Id)
-			d.SetId(c.Id)
+			log.Printf("[DEBUG] Imported canary config: %s\n", c.ID)
+			d.SetId(c.ID)
 
 			return resourceCanaryConfigRead(d, m)
 		}
 	}
 
-	log.Println("[WARN] No canary config found with name:", name)
+	log.Printf("[WARN] No canary config found with name: %s\n", name)
 	return errors.New("No canary config found")
 }

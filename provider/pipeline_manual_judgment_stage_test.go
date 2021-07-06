@@ -19,8 +19,6 @@ func TestAccPipelineManualJudgmentStageBasic(t *testing.T) {
 	var pipelineRef client.Pipeline
 	var stages []client.Stage
 	pipeName := fmt.Sprintf("tf-acc-test-%s", acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum))
-	master := "inst-ci"
-	newMaster := master + "-new"
 	pipelineResourceName := "spinnaker_pipeline.test"
 	stage1 := "spinnaker_pipeline_manual_judgment_stage.s1"
 	stage2 := "spinnaker_pipeline_manual_judgment_stage.s2"
@@ -30,7 +28,7 @@ func TestAccPipelineManualJudgmentStageBasic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccPipelineManualJudgmentStageConfigBasic(pipeName, master, 2),
+				Config: testAccPipelineManualJudgmentStageConfigBasic(pipeName, 2),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(stage1, "name", "Stage 1"),
 					resource.TestCheckResourceAttr(stage2, "name", "Stage 2"),
@@ -70,19 +68,7 @@ func TestAccPipelineManualJudgmentStageBasic(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccPipelineManualJudgmentStageConfigBasic(pipeName, newMaster, 2),
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(stage1, "name", "Stage 1"),
-					resource.TestCheckResourceAttr(stage2, "name", "Stage 2"),
-					testAccCheckPipelineExists(pipelineResourceName, &pipelineRef),
-					testAccCheckPipelineStages(pipelineResourceName, []string{
-						stage1,
-						stage2,
-					}, &stages),
-				),
-			},
-			{
-				Config: testAccPipelineManualJudgmentStageConfigBasic(pipeName, master, 1),
+				Config: testAccPipelineManualJudgmentStageConfigBasic(pipeName, 1),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(stage1, "name", "Stage 1"),
 					testAccCheckPipelineExists(pipelineResourceName, &pipelineRef),
@@ -92,7 +78,7 @@ func TestAccPipelineManualJudgmentStageBasic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccPipelineManualJudgmentStageConfigBasic(pipeName, master, 0),
+				Config: testAccPipelineManualJudgmentStageConfigBasic(pipeName, 0),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckPipelineExists(pipelineResourceName, &pipelineRef),
 					testAccCheckPipelineStages(pipelineResourceName, []string{}, &stages),
@@ -102,7 +88,7 @@ func TestAccPipelineManualJudgmentStageBasic(t *testing.T) {
 	})
 }
 
-func testAccPipelineManualJudgmentStageConfigBasic(pipeName string, master string, count int) string {
+func testAccPipelineManualJudgmentStageConfigBasic(pipeName string, count int) string {
 	stages := ""
 	for i := 1; i <= count; i++ {
 		stages += fmt.Sprintf(`
@@ -118,9 +104,5 @@ resource "spinnaker_pipeline_manual_judgment_stage" "s%v" {
 }`, i, i)
 	}
 
-	return fmt.Sprintf(`
-resource "spinnaker_pipeline" "test" {
-	application = "app"
-	name        = "%s"
-}`, pipeName) + stages
+	return testAccPipelineConfigBasic("app", pipeName) + stages
 }

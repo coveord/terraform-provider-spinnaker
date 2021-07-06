@@ -18,9 +18,10 @@ type BaseStage struct {
 	StageTimeoutMS                    int  `json:"stageTimeoutMs,omitempty"`
 	RestrictExecutionDuringTimeWindow bool `json:"restrictExecutionDuringTimeWindow"`
 
-	RestrictedExecutionWindow *StageExecutionWindow `json:"restrictedExecutionWindow"`
-	Notifications             *[]*Notification      `json:"notifications"`
-	ExpectedArtifacts         *[]*ExpectedArtifact  `json:"expectedArtifacts"`
+	RestrictedExecutionWindow *StageExecutionWindow        `json:"restrictedExecutionWindow"`
+	Notifications             *[]*Notification             `json:"notifications"`
+	ExpectedArtifacts         *[]*ManifestExpectedArtifact `json:"expectedArtifacts"`
+	RequiredArtifactIds       *[]string                    `json:"requiredArtifactIds"`
 }
 
 func newBaseStage(t StageType) *BaseStage {
@@ -28,7 +29,8 @@ func newBaseStage(t StageType) *BaseStage {
 		Type:                 t,
 		FailPipeline:         true,
 		RequisiteStageRefIds: []string{},
-		ExpectedArtifacts:    &[]*ExpectedArtifact{},
+		ExpectedArtifacts:    &[]*ManifestExpectedArtifact{},
+		RequiredArtifactIds:  &[]string{},
 	}
 }
 

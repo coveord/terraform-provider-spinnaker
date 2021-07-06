@@ -1,5 +1,30 @@
 # terraform-provider-spinnaker
 
+## 4.0.0
+
+Breaking changes:
+- Removed DeployStageCluster
+- Changed id -> ID
+
+- [84dc2f6] Merge pull request #84 from jgramoll/fanatics
+- [6be11ba] Merge pull request #83 from jgramoll/lints
+- [3a60535] Merge pull request #81 from jgramoll/cloudformation
+
+## 3.1.0
+
+- [527e6bc] Merge pull request #80 from jgramoll/required_artifact_ids
+- [35b479e] Merge pull request #79 from jgramoll/empty_moniker
+
+## 3.0.0
+
+- [8e8cbdb] add support for artifacts with deploy/bake manifest (#77)
+
+## 2.4.0
+
+- [e5a25c2] Fixing Patch Manifest encoding issue (#74)
+- [8bfb848] add github action to publish with goreleaser (#75)
+- [7d51e72] Add script stage (#73)
+
 ## 2.3.0
 
 - [341ee64] Patch manifest (#72)

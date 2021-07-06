@@ -20,43 +20,51 @@ type Services struct {
 // Provider for terraform
 func Provider() terraform.ResourceProvider {
 	return &schema.Provider{
+		TerraformVersion: ">= 0.12",
 		Schema: map[string]*schema.Schema{
-			"address": &schema.Schema{
+			"address": {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("SPINNAKER_ADDRESS", nil),
 				Description: "Address of spinnaker api",
 			},
 
-			"enabled": &schema.Schema{
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Default:     true,
-				Description: "Path to cert to authenticate with spinnaker api",
-			},
-
-			"cert_path": &schema.Schema{
+			"cert_path": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("SPINNAKER_CERT", nil),
 				Description: "Path to cert to authenticate with spinnaker api",
 			},
 
-			"key_path": &schema.Schema{
+			"key_path": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("SPINNAKER_KEY", nil),
 				Description: "Path to key to authenticate with spinnaker api",
 			},
 
-			"user_email": &schema.Schema{
+			"cert_content": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("SPINNAKER_CERT_CONTENT", nil),
+				Description: "Cert string in base64 to authenticate with spinnaker api",
+			},
+
+			"key_content": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("SPINNAKER_KEY_CONTENT", nil),
+				Description: "Key string in base64 to authenticate with spinnaker api",
+			},
+
+			"user_email": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("SPINNAKER_EMAIL", nil),
 				Description: "Path to user_email to authenticate with spinnaker api",
 			},
 
-			"insecure": &schema.Schema{
+			"insecure": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Default:     true,
@@ -76,18 +84,19 @@ func Provider() terraform.ResourceProvider {
 			"spinnaker_pipeline":            pipelineResource(),
 			"spinnaker_pipeline_bake_stage": pipelineBakeStageResource(),
 
-			"spinnaker_pipeline_bake_manifest_stage":        pipelineBakeManifestStageResource(),
-			"spinnaker_pipeline_canary_analysis_stage":      pipelineCanaryAnalysisStageResource(),
-			"spinnaker_pipeline_check_preconditions_stage":  pipelineCheckPreconditionsStageResource(),
-			"spinnaker_pipeline_delete_manifest_stage":      pipelineDeleteManifestStageResource(),
-			"spinnaker_pipeline_deploy_manifest_stage":      pipelineDeployManifestStageResource(),
-			"spinnaker_pipeline_scale_manifest_stage":       pipelineScaleManifestStageResource(),
-			"spinnaker_pipeline_deploy_stage":               pipelineDeployStageResource(),
-			"spinnaker_pipeline_destroy_server_group_stage": pipelineDestroyServerGroupStageResource(),
-			"spinnaker_pipeline_disable_manifest_stage":     pipelineDisableManifestStageResource(),
-			"spinnaker_pipeline_enable_manifest_stage":      pipelineEnableManifestStageResource(),
-			"spinnaker_pipeline_enable_server_group_stage":  pipelineEnableServerGroupStageResource(),
-			"spinnaker_pipeline_evaluate_variables_stage":   pipelineEvaluateVariablesStageResource(),
+			"spinnaker_pipeline_bake_manifest_stage":         pipelineBakeManifestStageResource(),
+			"spinnaker_pipeline_canary_analysis_stage":       pipelineCanaryAnalysisStageResource(),
+			"spinnaker_pipeline_check_preconditions_stage":   pipelineCheckPreconditionsStageResource(),
+			"spinnaker_pipeline_delete_manifest_stage":       pipelineDeleteManifestStageResource(),
+			"spinnaker_pipeline_deploy_cloudformation_stage": pipelineDeployCloudformationStageResource(),
+			"spinnaker_pipeline_deploy_manifest_stage":       pipelineDeployManifestStageResource(),
+			"spinnaker_pipeline_deploy_stage":                pipelineDeployStageResource(),
+			"spinnaker_pipeline_destroy_server_group_stage":  pipelineDestroyServerGroupStageResource(),
+			"spinnaker_pipeline_disable_manifest_stage":      pipelineDisableManifestStageResource(),
+			"spinnaker_pipeline_disable_server_group_stage":  pipelineDisableServerGroupStageResource(),
+			"spinnaker_pipeline_enable_server_group_stage":   pipelineEnableServerGroupStageResource(),
+			"spinnaker_pipeline_enable_manifest_stage":       pipelineEnableManifestStageResource(),
+			"spinnaker_pipeline_evaluate_variables_stage":    pipelineEvaluateVariablesStageResource(),
 
 			"spinnaker_pipeline_find_artifacts_from_resource_stage": pipelineFindArtifactsFromResourceStageResource(),
 
@@ -100,6 +109,7 @@ func Provider() terraform.ResourceProvider {
 			"spinnaker_pipeline_resize_server_group_stage":   pipelineResizeServerGroupStageResource(),
 			"spinnaker_pipeline_rollback_cluster_stage":      pipelineRollbackClusterStageResource(),
 			"spinnaker_pipeline_run_job_manifest_stage":      pipelineRunJobManifestStageResource(),
+			"spinnaker_pipeline_scale_manifest_stage":        pipelineScaleManifestStageResource(),
 			"spinnaker_pipeline_undo_rollout_manifest_stage": pipelineUndoRolloutManifestStageResource(),
 			"spinnaker_pipeline_webhook_stage":               pipelineWebhookStageResource(),
 			"spinnaker_pipeline_script_stage":                pipelineScriptStageResource(),
@@ -120,14 +130,17 @@ func Provider() terraform.ResourceProvider {
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	config := newProviderConfig()
 	configRaw := d.Get("").(map[string]interface{})
-	if err := mapstructure.Decode(configRaw, &config); err != nil {
+	if err := mapstructure.WeakDecode(configRaw, &config); err != nil {
 		return nil, err
 	}
 
 	log.Println("[INFO] Initializing Spinnaker client")
 
 	clientConfig := config.toClientConfig()
-	c := client.NewClient(config.toClientConfig())
+	c, err := client.NewClient(clientConfig)
+	if err != nil {
+		return nil, err
+	}
 	return &Services{
 		Config:              clientConfig,
 		ApplicationService:  &client.ApplicationService{Client: c},

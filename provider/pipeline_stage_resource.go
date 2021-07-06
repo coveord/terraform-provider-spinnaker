@@ -38,7 +38,7 @@ func stageResource(in map[string]*schema.Schema) map[string]*schema.Schema {
 			Type:        schema.TypeList,
 			Description: "Expected artifacts for stage",
 			Optional:    true,
-			Elem:        expectedArtifactResource(),
+			Elem:        manifestExpectedArtifactResource(),
 		},
 		"notification": {
 			Type:        schema.TypeList,
@@ -101,6 +101,14 @@ func stageResource(in map[string]*schema.Schema) map[string]*schema.Schema {
 			MaxItems:    1,
 			Elem:        stageEnabledResource(),
 		},
+		"required_artifact_ids": {
+			Type:        schema.TypeList,
+			Description: "These artifacts must be present in the context for this stage to successfully complete. Artifacts specified will be bound to the deployed manifest.",
+			Optional:    true,
+			Elem: &schema.Schema{
+				Type: schema.TypeString,
+			},
+		},
 	}
 
 	// merge input
@@ -156,7 +164,7 @@ func resourcePipelineStageCreate(d *schema.ResourceData, m interface{}, createSt
 		return err
 	}
 
-	log.Println("[DEBUG] Creating pipeline stage:", id)
+	log.Printf("[DEBUG] Creating pipeline stage: %s\n", id)
 	d.SetId(id.String())
 	return resourcePipelineStageRead(d, m, createStage)
 }
@@ -166,7 +174,7 @@ func resourcePipelineStageRead(d *schema.ResourceData, m interface{}, createStag
 	pipelineService := m.(*Services).PipelineService
 	pipeline, err := pipelineService.GetPipelineByID(pipelineID)
 	if err != nil {
-		log.Println("[WARN] No Pipeline found:", err)
+		log.Printf("[WARN] No Pipeline found: %s\n", err)
 		d.SetId("")
 		return nil
 	}
@@ -177,8 +185,9 @@ func resourcePipelineStageRead(d *schema.ResourceData, m interface{}, createStag
 		log.Println("[WARN] No Pipeline Stage found")
 		d.SetId("")
 		return nil
+
 	} else if err != nil {
-		log.Println("[ERROR] Error on get Pipeline stage:", err)
+		log.Printf("[ERROR] Error on get Pipeline stage: %s\n", err)
 		d.SetId("")
 		return err
 	}
@@ -186,11 +195,11 @@ func resourcePipelineStageRead(d *schema.ResourceData, m interface{}, createStag
 	s := createStage().(stage)
 	s, err = s.fromClientStage(cStage)
 	if err != nil {
-		log.Println("[ERROR] Error on reading pipeline stage:", err)
+		log.Printf("[ERROR] Error on reading pipeline stage: %s\n", err)
 		d.SetId("")
 		return err
 	}
-	log.Println("[INFO] Updating from stage", cStage)
+	log.Printf("[INFO] Updating from stage: %s\n", cStage)
 	return s.SetResourceData(d)
 
 }
@@ -225,7 +234,7 @@ func resourcePipelineStageUpdate(d *schema.ResourceData, m interface{}, createSt
 		return err
 	}
 
-	log.Println("[DEBUG] Updated pipeline stages:", d.Id())
+	log.Printf("[DEBUG] Updated pipeline stages: %s\n", d.Id())
 	return resourcePipelineStageRead(d, m, createStage)
 }
 

@@ -121,9 +121,5 @@ resource "spinnaker_pipeline_find_image_from_tags_stage" "s%v" {
 }`, i, i, packageName)
 	}
 
-	return fmt.Sprintf(`
-resource "spinnaker_pipeline" "test" {
-	application = "app"
-	name        = "%s"
-}`, pipeName) + stages
+	return testAccPipelineConfigBasic("app", pipeName) + stages
 }

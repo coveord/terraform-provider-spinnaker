@@ -115,6 +115,15 @@ resource "spinnaker_pipeline_patch_manifest_stage" "s%v" {
 	pipeline  = "${spinnaker_pipeline.test.id}"
 	name      = "Stage %v"
 	account    = "%v"
+	patch_body = [<<DOC
+apiVersion: v1
+kind: Namespace
+metadata:
+  annotations:
+    foo: bar
+  name: foobar
+DOC
+	]
 
 	options {
 		merge_strategy = "strategic"
@@ -122,9 +131,5 @@ resource "spinnaker_pipeline_patch_manifest_stage" "s%v" {
 }`, i, i, accountName)
 	}
 
-	return fmt.Sprintf(`
-resource "spinnaker_pipeline" "test" {
-	application = "app"
-	name        = "%s"
-}`, pipeName) + stages
+	return testAccPipelineConfigBasic("app", pipeName) + stages
 }

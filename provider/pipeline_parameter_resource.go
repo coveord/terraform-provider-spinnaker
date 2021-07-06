@@ -32,43 +32,43 @@ func pipelineParameterResource() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			PipelineKey: &schema.Schema{
+			PipelineKey: {
 				Type:        schema.TypeString,
 				Description: "Id of the pipeline to add parameter",
 				Required:    true,
 				ForceNew:    true,
 			},
-			"default": &schema.Schema{
+			"default": {
 				Type:        schema.TypeString,
 				Description: "Default value",
 				Optional:    true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"label": &schema.Schema{
+			"label": {
 				Type:        schema.TypeString,
 				Description: "A label to display when users are triggering the pipeline manually",
 				Optional:    true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"option": &schema.Schema{
+			"option": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"value": &schema.Schema{
+						"value": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
 					},
 				},
 			},
-			"required": &schema.Schema{
+			"required": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
@@ -107,7 +107,7 @@ func resourcePipelineParameterCreate(d *schema.ResourceData, m interface{}) erro
 		return err
 	}
 
-	log.Println("[DEBUG] Creating pipeline parameter:", id)
+	log.Printf("[DEBUG] Creating pipeline parameter: %s\n", id)
 	d.SetId(id.String())
 	return resourcePipelineParameterRead(d, m)
 }
@@ -117,7 +117,7 @@ func resourcePipelineParameterRead(d *schema.ResourceData, m interface{}) error 
 	pipelineService := m.(*Services).PipelineService
 	pipeline, err := pipelineService.GetPipelineByID(pipelineID)
 	if err != nil {
-		log.Println("[WARN] No Pipeline found:", err)
+		log.Printf("[WARN] No Pipeline found: %s\n", err)
 		d.SetId("")
 		return nil
 	}
@@ -125,7 +125,7 @@ func resourcePipelineParameterRead(d *schema.ResourceData, m interface{}) error 
 	var parameter *client.PipelineParameter
 	parameter, err = pipeline.GetParameter(d.Id())
 	if err != nil {
-		log.Println("[WARN] No Pipeline Parameter found:", err)
+		log.Printf("[WARN] No Pipeline Parameter found: %s\n", err)
 		d.SetId("")
 	} else {
 		d.SetId(parameter.ID)
@@ -163,7 +163,7 @@ func resourcePipelineParameterUpdate(d *schema.ResourceData, m interface{}) erro
 		return err
 	}
 
-	log.Println("[DEBUG] Updated pipeline parameter:", d.Id())
+	log.Printf("[DEBUG] Updated pipeline parameter: %s\n", d.Id())
 	return resourcePipelineParameterRead(d, m)
 }
 

@@ -107,6 +107,28 @@ func TestAccPipelineDeployManifestStageBasic(t *testing.T) {
 	})
 }
 
+func TestAccPipelineDeployManifestStageArtifact(t *testing.T) {
+	var pipelineRef client.Pipeline
+	pipeName := fmt.Sprintf("tf-acc-test-%s", acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum))
+	pipelineResourceName := "spinnaker_pipeline.test"
+	stage1 := "spinnaker_pipeline_deploy_manifest_stage.test"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPipelineDeployManifestStageConfigArtifact(pipeName),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(stage1, "name", "Deploy"),
+					resource.TestCheckResourceAttr(stage1, "account", "test-account"),
+					testAccCheckPipelineExists(pipelineResourceName, &pipelineRef),
+				),
+			},
+		},
+	})
+}
+
 func testAccPipelineDeployManifestStageConfigBasic(pipeName string, accountName string, count int) string {
 	stages := ""
 	for i := 1; i <= count; i++ {
@@ -119,6 +141,9 @@ resource "spinnaker_pipeline_deploy_manifest_stage" "s%v" {
 	cloud_provider            = "provider"
 	source                    = "text"
 
+	moniker {
+		app = "app"
+	}
 	relationships {}
 	traffic_management {
 		options {}
@@ -136,9 +161,31 @@ EOT
 }`, i, i, accountName)
 	}
 
-	return fmt.Sprintf(`
-resource "spinnaker_pipeline" "test" {
-	application = "app"
-	name        = "%s"
-}`, pipeName) + stages
+	return testAccPipelineConfigBasic("app", pipeName) + stages
+}
+
+func testAccPipelineDeployManifestStageConfigArtifact(pipeName string) string {
+	stage := `
+resource "spinnaker_pipeline_deploy_manifest_stage" "test" {
+	pipeline = spinnaker_pipeline.test.id
+	name     = "Deploy"
+	account  = "test-account"
+
+	cloud_provider = "kubernetes"
+	source         = "artifact"
+
+	manifest_artifact_id = "1234"
+	skip_expression_evaluation = true
+
+	moniker {
+		app = "app"
+	}
+	relationships {}
+	traffic_management {
+		options {}
+	}
+}
+`
+
+	return testAccPipelineConfigBasic("app", pipeName) + stage
 }
