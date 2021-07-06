@@ -185,7 +185,7 @@ func resourcePipelineStageRead(d *schema.ResourceData, m interface{}, createStag
 				return nil
 			}
 		}
-		log.Printf("[INFO] Retrying GetPipelineByID after error: %[1]t %[1]v\n", err)
+		log.Printf("[WARN] Retrying GetPipelineByID after error: %[1]t %[1]v\n", err)
 		time.Sleep(100 * time.Millisecond)
 		pipeline, err = pipelineService.GetPipelineByID(pipelineID)
 		if err != nil {
