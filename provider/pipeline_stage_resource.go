@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -172,11 +173,26 @@ func resourcePipelineStageCreate(d *schema.ResourceData, m interface{}, createSt
 func resourcePipelineStageRead(d *schema.ResourceData, m interface{}, createStage func() stage) error {
 	pipelineID := d.Get(PipelineKey).(string)
 	pipelineService := m.(*Services).PipelineService
-	pipeline, err := pipelineService.GetPipelineByID(pipelineID)
+	var pipeline *client.Pipeline
+	var err error
+
+	pipeline, err = pipelineService.GetPipelineByID(pipelineID)
 	if err != nil {
-		log.Printf("[WARN] No Pipeline found: %s\n", err)
-		d.SetId("")
-		return nil
+		if spinnakerErr, ok := err.(*client.SpinnakerError); ok {
+			if spinnakerErr.Status == 404 {
+				log.Printf("[WARN] No Pipeline found: %s\n", err)
+				d.SetId("")
+				return nil
+			}
+		}
+		log.Printf("[WARN] Retrying GetPipelineByID after error: %[1]t %[1]v\n", err)
+		time.Sleep(100 * time.Millisecond)
+		pipeline, err = pipelineService.GetPipelineByID(pipelineID)
+		if err != nil {
+			d.SetId("")
+			log.Printf("[PANIC] Error on getting pipeline: %[1]t %[1]v\n", err)
+			return err
+		}
 	}
 
 	var cStage client.Stage
