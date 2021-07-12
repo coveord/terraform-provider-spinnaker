@@ -26,66 +26,70 @@ func pipelineDeployManifestStageResource() *schema.Resource {
 		},
 
 		Schema: stageResource(map[string]*schema.Schema{
-			"account": &schema.Schema{
+			"account": {
 				Type:        schema.TypeString,
 				Description: "The account name",
 				Required:    true,
 			},
-			"credentials": &schema.Schema{
+			"credentials": {
 				Type:        schema.TypeString,
 				Description: "The credentials name",
 				Optional:    true,
 			},
-			"namespace_override": &schema.Schema{
+			"namespace_override": {
 				Type:        schema.TypeString,
 				Description: "Namespace override",
 				Optional:    true,
 			},
-			"cloud_provider": &schema.Schema{
+			"cloud_provider": {
 				Type:        schema.TypeString,
 				Description: "The cloud provider name",
 				Required:    true,
 			},
-			"manifest_artifact_account": &schema.Schema{
+			"manifest_artifact_account": {
 				Type:        schema.TypeString,
 				Description: "The manifest artifact account",
 				Optional:    true,
-				Default:     "docker-registry",
 			},
-			"manifests": &schema.Schema{
+			"manifest_artifact_id": {
+				Type:        schema.TypeString,
+				Description: "The manifest artifact id",
+				Optional:    true,
+			},
+			"manifests": {
 				Type:        schema.TypeList,
 				Description: "The manifests as yaml",
-				Required:    true,
+				Optional:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
-			"moniker": &schema.Schema{
+			"moniker": {
 				Type:        schema.TypeList,
 				Description: "Name to attach to manifest",
 				Required:    true,
 				MaxItems:    1,
 				Elem:        monikerResource(),
 			},
-			"relationships": &schema.Schema{
+			"relationships": {
 				Type:        schema.TypeList,
 				Description: "relationships",
 				Required:    true,
 				MaxItems:    1,
 				Elem:        relationshipsResource(),
 			},
-			"skip_expression_evaluation": &schema.Schema{
+			"skip_expression_evaluation": {
 				Type:        schema.TypeBool,
 				Description: "Skip Expression Evaluation",
 				Optional:    true,
 				Default:     false,
 			},
-			"source": &schema.Schema{
+			"source": {
 				Type:        schema.TypeString,
 				Description: "source",
 				Required:    true,
 			},
-			"traffic_management": &schema.Schema{
+			"traffic_management": {
 				Type:        schema.TypeList,
 				Description: "The manifest artifact account",
 				Required:    true,

@@ -35,13 +35,13 @@ func pipelineNotificationResource() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			PipelineKey: &schema.Schema{
+			PipelineKey: {
 				Type:        schema.TypeString,
 				Description: "Id of the pipeline to send notification",
 				Required:    true,
 				ForceNew:    true,
 			},
-			"address": &schema.Schema{
+			"address": {
 				Type:        schema.TypeString,
 				Description: "Address of the notification (slack channel, email, etc)",
 				Required:    true,
@@ -53,42 +53,42 @@ func pipelineNotificationResource() *schema.Resource {
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"complete": &schema.Schema{
+						"complete": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"failed": &schema.Schema{
+						"failed": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"starting": &schema.Schema{
+						"starting": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
 					},
 				},
 			},
-			"type": &schema.Schema{
+			"type": {
 				Type:        schema.TypeString,
 				Description: "Type of notification (slack, email, etc)",
 				Required:    true,
 			},
-			"when": &schema.Schema{
+			"when": {
 				Type:        schema.TypeList,
 				Description: "When to send notification (started, completed, failed)",
 				Required:    true,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"complete": &schema.Schema{
+						"complete": {
 							Type:     schema.TypeBool,
 							Optional: true,
 						},
-						"failed": &schema.Schema{
+						"failed": {
 							Type:     schema.TypeBool,
 							Optional: true,
 						},
-						"starting": &schema.Schema{
+						"starting": {
 							Type:     schema.TypeBool,
 							Optional: true,
 						},
@@ -132,7 +132,7 @@ func resourcePipelineNotificationCreate(d *schema.ResourceData, m interface{}) e
 		return err
 	}
 
-	log.Println("[DEBUG] Creating pipeline notification:", id)
+	log.Printf("[DEBUG] Creating pipeline notification: %s\n", id)
 	d.SetId(id.String())
 	return resourcePipelineNotificationRead(d, m)
 }
@@ -142,7 +142,7 @@ func resourcePipelineNotificationRead(d *schema.ResourceData, m interface{}) err
 	pipelineService := m.(*Services).PipelineService
 	pipeline, err := pipelineService.GetPipelineByID(pipelineID)
 	if err != nil {
-		log.Println("[WARN] No Pipeline found:", err)
+		log.Printf("[WARN] No Pipeline found: %s\n", err)
 		d.SetId("")
 		return nil
 	}
@@ -150,7 +150,7 @@ func resourcePipelineNotificationRead(d *schema.ResourceData, m interface{}) err
 	var notification *client.Notification
 	notification, err = pipeline.GetNotification(d.Id())
 	if err != nil {
-		log.Println("[WARN] No Pipeline Notification found:", err)
+		log.Printf("[WARN] No Pipeline Notification found: %s\n", err)
 		d.SetId("")
 	} else {
 		d.SetId(notification.ID)
@@ -192,7 +192,7 @@ func resourcePipelineNotificationUpdate(d *schema.ResourceData, m interface{}) e
 		return err
 	}
 
-	log.Println("[DEBUG] Updated pipeline notifications:", d.Id())
+	log.Printf("[DEBUG] Updated pipeline notifications: %s\n", d.Id())
 	return resourcePipelineNotificationRead(d, m)
 }
 

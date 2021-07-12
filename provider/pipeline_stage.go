@@ -14,19 +14,20 @@ type stage interface {
 }
 
 type baseStage struct {
-	Name                              string                    `mapstructure:"name"`
-	RequisiteStageRefIds              []string                  `mapstructure:"requisite_stage_ref_ids"`
-	ExpectedArtifacts                 *[]*expectedArtifact      `mapstructure:"expected_artifact"`
-	Notifications                     *[]map[string]interface{} `mapstructure:"notification"`
-	StageEnabled                      *[]*stageEnabled          `mapstructure:"stage_enabled"`
-	CompleteOtherBranchesThenFail     bool                      `mapstructure:"complete_other_branches_then_fail"`
-	ContinuePipeline                  bool                      `mapstructure:"continue_pipeline"`
-	FailOnFailedExpressions           bool                      `mapstructure:"fail_on_failed_expressions"`
-	FailPipeline                      bool                      `mapstructure:"fail_pipeline"`
-	OverrideTimeout                   bool                      `mapstructure:"override_timeout"`
-	StageTimeoutMS                    int                       `mapstructure:"stage_timeout_ms"`
-	RestrictExecutionDuringTimeWindow bool                      `mapstructure:"restrict_execution_during_time_window"`
-	RestrictedExecutionWindow         *[]*stageExecutionWindow  `mapstructure:"restricted_execution_window"`
+	Name                              string                       `mapstructure:"name"`
+	RequisiteStageRefIds              []string                     `mapstructure:"requisite_stage_ref_ids"`
+	ExpectedArtifacts                 *[]*manifestExpectedArtifact `mapstructure:"expected_artifact"`
+	Notifications                     *[]map[string]interface{}    `mapstructure:"notification"`
+	StageEnabled                      *[]*stageEnabled             `mapstructure:"stage_enabled"`
+	CompleteOtherBranchesThenFail     bool                         `mapstructure:"complete_other_branches_then_fail"`
+	ContinuePipeline                  bool                         `mapstructure:"continue_pipeline"`
+	FailOnFailedExpressions           bool                         `mapstructure:"fail_on_failed_expressions"`
+	FailPipeline                      bool                         `mapstructure:"fail_pipeline"`
+	OverrideTimeout                   bool                         `mapstructure:"override_timeout"`
+	StageTimeoutMS                    int                          `mapstructure:"stage_timeout_ms"`
+	RestrictExecutionDuringTimeWindow bool                         `mapstructure:"restrict_execution_during_time_window"`
+	RestrictedExecutionWindow         *[]*stageExecutionWindow     `mapstructure:"restricted_execution_window"`
+	RequiredArtifactIds               *[]string                    `mapstructure:"required_artifact_ids"`
 }
 
 func newBaseStage() *baseStage {
@@ -47,7 +48,11 @@ func (s *baseStage) baseToClientStage(cs *client.BaseStage, refID string, notifi
 	cs.Name = s.Name
 	cs.RefID = refID
 	cs.RequisiteStageRefIds = s.RequisiteStageRefIds
-	cs.ExpectedArtifacts = toClientExpectedArtifacts(s.ExpectedArtifacts)
+	art, err := toClientExpectedArtifacts(s.ExpectedArtifacts)
+	if err != nil {
+		return err
+	}
+	cs.ExpectedArtifacts = art
 	cs.Notifications = notifications
 	cs.SendNotifications = notifications != nil && len(*notifications) > 0
 	cs.StageEnabled = toClientStageEnabled(s.StageEnabled)
@@ -59,6 +64,7 @@ func (s *baseStage) baseToClientStage(cs *client.BaseStage, refID string, notifi
 	cs.StageTimeoutMS = s.StageTimeoutMS
 	cs.RestrictExecutionDuringTimeWindow = s.RestrictExecutionDuringTimeWindow
 	cs.RestrictedExecutionWindow = toClientExecutionWindow(s.RestrictedExecutionWindow)
+	cs.RequiredArtifactIds = s.RequiredArtifactIds
 	return nil
 }
 
@@ -84,6 +90,7 @@ func (s *baseStage) baseFromClientStage(clientStage *client.BaseStage, notificat
 	s.StageTimeoutMS = clientStage.StageTimeoutMS
 	s.RestrictExecutionDuringTimeWindow = clientStage.RestrictExecutionDuringTimeWindow
 	s.RestrictedExecutionWindow = fromClientExecutionWindow(clientStage.RestrictedExecutionWindow)
+	s.RequiredArtifactIds = clientStage.RequiredArtifactIds
 	return nil
 }
 
@@ -140,5 +147,10 @@ func (s *baseStage) baseSetResourceData(d *schema.ResourceData) error {
 	if err != nil {
 		return err
 	}
+	err = d.Set("required_artifact_ids", s.RequiredArtifactIds)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

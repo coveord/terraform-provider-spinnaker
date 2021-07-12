@@ -6,15 +6,8 @@ import (
 )
 
 type destroyServerGroupStage struct {
-	baseStage `mapstructure:",squash"`
-
-	CloudProvider     string      `mapstructure:"cloud_provider"`
-	CloudProviderType string      `mapstructure:"cloud_provider_type"`
-	Cluster           string      `mapstructure:"cluster"`
-	Credentials       string      `mapstructure:"credentials"`
-	Moniker           *[]*moniker `mapstructure:"moniker"`
-	Regions           []string    `mapstructure:"regions"`
-	Target            string      `mapstructure:"target"`
+	baseStage              `mapstructure:",squash"`
+	targetServerGroupStage `mapstructure:",squash"`
 }
 
 func newDestroyServerGroupStage() *destroyServerGroupStage {
@@ -29,14 +22,10 @@ func (s *destroyServerGroupStage) toClientStage(config *client.Config, refID str
 	if err != nil {
 		return nil, err
 	}
-
-	cs.CloudProvider = s.CloudProvider
-	cs.CloudProviderType = s.CloudProviderType
-	cs.Cluster = s.Cluster
-	cs.Credentials = s.Credentials
-	cs.Moniker = toClientMoniker(s.Moniker)
-	cs.Regions = s.Regions
-	cs.Target = s.Target
+	err = s.targetServerGroupStageToClient(&cs.TargetServerGroupStage)
+	if err != nil {
+		return nil, err
+	}
 
 	return cs, nil
 }
@@ -48,14 +37,10 @@ func (*destroyServerGroupStage) fromClientStage(cs client.Stage) (stage, error) 
 	if err != nil {
 		return nil, err
 	}
-
-	newStage.CloudProvider = clientStage.CloudProvider
-	newStage.CloudProviderType = clientStage.CloudProviderType
-	newStage.Cluster = clientStage.Cluster
-	newStage.Credentials = clientStage.Credentials
-	newStage.Moniker = fromClientMoniker(clientStage.Moniker)
-	newStage.Regions = clientStage.Regions
-	newStage.Target = clientStage.Target
+	err = newStage.targetServerGroupStageFromClientStage(&clientStage.TargetServerGroupStage)
+	if err != nil {
+		return nil, err
+	}
 
 	return newStage, nil
 }
@@ -65,30 +50,10 @@ func (s *destroyServerGroupStage) SetResourceData(d *schema.ResourceData) error 
 	if err != nil {
 		return err
 	}
+	err = s.targetServerGroupSetResourceData(d)
+	if err != nil {
+		return err
+	}
 
-	err = d.Set("cloud_provider", s.CloudProvider)
-	if err != nil {
-		return err
-	}
-	err = d.Set("cloud_provider_type", s.CloudProviderType)
-	if err != nil {
-		return err
-	}
-	err = d.Set("cluster", s.Cluster)
-	if err != nil {
-		return err
-	}
-	err = d.Set("credentials", s.Credentials)
-	if err != nil {
-		return err
-	}
-	err = d.Set("moniker", s.Moniker)
-	if err != nil {
-		return err
-	}
-	err = d.Set("regions", s.Regions)
-	if err != nil {
-		return err
-	}
-	return d.Set("target", s.Target)
+	return nil
 }

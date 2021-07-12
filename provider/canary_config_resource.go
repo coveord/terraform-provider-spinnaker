@@ -19,12 +19,12 @@ func canaryConfigResource() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:        schema.TypeString,
 				Description: "Canary Config Name",
 				Required:    true,
 			},
-			"applications": &schema.Schema{
+			"applications": {
 				Type:        schema.TypeList,
 				Description: "Applications",
 				Required:    true,
@@ -32,32 +32,32 @@ func canaryConfigResource() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:        schema.TypeString,
 				Description: "Canary Config Description",
 				Optional:    true,
 			},
-			"metric": &schema.Schema{
+			"metric": {
 				Type:        schema.TypeList,
 				Description: "Canary Metrics",
 				Required:    true,
 				Elem:        canaryConfigMetricResource(),
 			},
-			"config_version": &schema.Schema{
+			"config_version": {
 				Type:        schema.TypeString,
 				Description: "Canary Config Version",
 				Optional:    true,
 				Default:     "1",
 			},
 			// Templates     map[string]interface{}  `mapstructure:"templates"`
-			"classifier": &schema.Schema{
+			"classifier": {
 				Type:        schema.TypeList,
 				Description: "Canary Classifier",
 				MaxItems:    1,
 				Required:    true,
 				Elem:        canaryConfigClassifierResource(),
 			},
-			"judge": &schema.Schema{
+			"judge": {
 				Type:        schema.TypeList,
 				Description: "Canary Judge",
 				MaxItems:    1,
@@ -75,7 +75,7 @@ func resourceCanaryConfigCreate(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	log.Println("[DEBUG] Creating canary config", canaryConfig.Name)
+	log.Printf("[DEBUG] Creating canary config: %s\n", canaryConfig.Name)
 	canaryConfigService := m.(*Services).CanaryConfigService
 	id, err := canaryConfigService.CreateCanaryConfig(canaryConfig.toClientCanaryConfig(d.Id()))
 	if err != nil {
@@ -100,7 +100,7 @@ func resourceCanaryConfigRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	log.Println("[DEBUG] Got canary config", a.Name)
+	log.Printf("[DEBUG] Got canary config: %s\n", a.Name)
 	return fromClientCanaryConfig(a).setResourceData(d)
 }
 
@@ -117,12 +117,12 @@ func resourceCanaryConfigUpdate(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	log.Println("[DEBUG] Updated canary config", d.Id())
+	log.Printf("[DEBUG] Updated canary config: %s\n", d.Id())
 	return resourceCanaryConfigRead(d, m)
 }
 
 func resourceCanaryConfigDelete(d *schema.ResourceData, m interface{}) error {
-	log.Println("[DEBUG] Deleting canary config", d.Id())
+	log.Printf("[DEBUG] Deleting canary config: %s\n", d.Id())
 	canaryConfigService := m.(*Services).CanaryConfigService
 	err := canaryConfigService.DeleteCanaryConfig(d.Id())
 	if err != nil {
