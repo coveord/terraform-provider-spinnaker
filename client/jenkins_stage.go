@@ -23,6 +23,9 @@ type JenkinsStage struct {
 	Master                   string                 `json:"master"`
 	Parameters               map[string]interface{} `json:"parameters,omitempty"`
 	PropertyFile             string                 `json:"propertyFile,omitempty"`
+
+	// Coveo specific
+	PipelineMetadata map[string]string `json:"pipeline_metadata" mapstructure:"pipeline_metadata"`
 }
 
 // NewJenkinsStage for pipeline

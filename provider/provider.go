@@ -114,6 +114,9 @@ func Provider() terraform.ResourceProvider {
 			"spinnaker_pipeline_webhook_stage":               pipelineWebhookStageResource(),
 			"spinnaker_pipeline_script_stage":                pipelineScriptStageResource(),
 
+			// Coveo specific
+			"spinnaker_pipeline_register_amis_stage": pipelineRegisterAmisStageResource(),
+
 			"spinnaker_pipeline_parameter": pipelineParameterResource(),
 
 			"spinnaker_pipeline_trigger":          pipelineJenkinsTriggerResource("use spinnaker_pipeline_jenkins_trigger"),

@@ -15,6 +15,9 @@ type jenkinsStage struct {
 	Master                   string                 `mapstructure:"master"`
 	Parameters               map[string]interface{} `mapstructure:"parameters"`
 	PropertyFile             string                 `mapstructure:"property_file"`
+
+	// Coveo specific
+	PipelineMetadata map[string]string `mapstructure:"pipeline_metadata"`
 }
 
 func newJenkinsStage() *jenkinsStage {
@@ -47,6 +50,9 @@ func (s *jenkinsStage) toClientStage(config *client.Config, refID string) (clien
 		}
 	}
 
+	// Coveo specific
+	cs.PipelineMetadata = s.PipelineMetadata
+
 	return cs, nil
 }
 
@@ -70,6 +76,9 @@ func (*jenkinsStage) fromClientStage(cs client.Stage) (stage, error) {
 			newStage.Parameters[key] = strconv.FormatBool(v)
 		}
 	}
+
+	// Coveo specific
+	newStage.PipelineMetadata = clientStage.PipelineMetadata
 
 	return newStage, nil
 }
@@ -96,5 +105,16 @@ func (s *jenkinsStage) SetResourceData(d *schema.ResourceData) error {
 	if err != nil {
 		return err
 	}
-	return d.Set("property_file", s.PropertyFile)
+	err = d.Set("property_file", s.PropertyFile)
+	if err != nil {
+		return err
+	}
+
+	// Coveo specific
+	err = d.Set("pipeline_metadata", s.PipelineMetadata)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

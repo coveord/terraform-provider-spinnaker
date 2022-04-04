@@ -32,6 +32,9 @@ type BakeStage struct {
 	User               string            `json:"user,omitempty"`
 	VarFileName        string            `json:"varFileName,omitempty"`
 	VMType             string            `json:"vmType"`
+
+	// Coveo specific
+	PipelineMetadata map[string]string `json:"pipeline_metadata" mapstructure:"pipeline_metadata"`
 }
 
 // NewBakeStage for pipeline

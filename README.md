@@ -108,6 +108,11 @@ resource "spinnaker_pipeline_notification" "edge" {
 resource "spinnaker_pipeline_bake_stage" "bake" {
   pipeline = spinnaker_pipeline.test.id
   name     = "Stage Bake"
+  
+  # Coveo specific
+  pipeline_metadata = {
+    key = "value"
+  }
 }
 
 resource "spinnaker_pipeline_jenkins_stage" "bake" {
@@ -125,6 +130,11 @@ resource "spinnaker_pipeline_jenkins_stage" "bake" {
     when {
       failed = true
     }
+  }
+
+  # Coveo specific
+  pipeline_metadata = {
+    key = "value"
   }
 }
 
@@ -597,6 +607,26 @@ Outputs:
           - DomainName
     Description: Name of S3 bucket to hold website content
 EOT
+}
+
+# Coveo specific
+resource "spinnaker_pipeline_register_amis_stage" "register_amis" {
+  pipeline = spinnaker_pipeline.test.id
+  name     = "Register AMIs"
+
+  hardening_check_ref_id          = spinnaker_pipeline_jenkins_stage.hardening_check.id
+  virus_free_check_ref_id         = spinnaker_pipeline_jenkins_stage.vulnerability_check.id
+  vulnerability_free_check_ref_id = spinnaker_pipeline_jenkins_stage.vulnerability_free_check.id
+
+  package_name               = "$${trigger['parameters']['package_name']}"
+  ami_name                   = "$${trigger['parameters']['name']}"
+  source_ami                 = "$${trigger['parameters']['source_ami']}"
+  is_golden                  = "$${#toBoolean(trigger['parameters']['is_golden'])}"
+  fail_on_no_ami_to_register = true
+  
+  pipeline_metadata = {
+    key = "value"
+  }
 }
 ```
 

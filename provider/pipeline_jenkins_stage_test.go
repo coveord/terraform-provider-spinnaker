@@ -34,8 +34,10 @@ func TestAccPipelineJenkinsStageBasic(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(stage1, "name", "Stage 1"),
 					resource.TestCheckResourceAttr(stage1, "master", master),
+					resource.TestCheckResourceAttr(stage1, "pipeline_metadata.key1", master),
 					resource.TestCheckResourceAttr(stage2, "name", "Stage 2"),
 					resource.TestCheckResourceAttr(stage2, "master", master),
+					resource.TestCheckResourceAttr(stage2, "pipeline_metadata.key2", master),
 					testAccCheckPipelineExists(pipelineResourceName, &pipelineRef),
 					testAccCheckPipelineStages(pipelineResourceName, []string{
 						stage1,
@@ -76,8 +78,10 @@ func TestAccPipelineJenkinsStageBasic(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(stage1, "name", "Stage 1"),
 					resource.TestCheckResourceAttr(stage1, "master", newMaster),
+					resource.TestCheckResourceAttr(stage1, "pipeline_metadata.key1", newMaster),
 					resource.TestCheckResourceAttr(stage2, "name", "Stage 2"),
 					resource.TestCheckResourceAttr(stage2, "master", newMaster),
+					resource.TestCheckResourceAttr(stage2, "pipeline_metadata.key2", newMaster),
 					testAccCheckPipelineExists(pipelineResourceName, &pipelineRef),
 					testAccCheckPipelineStages(pipelineResourceName, []string{
 						stage1,
@@ -90,6 +94,7 @@ func TestAccPipelineJenkinsStageBasic(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(stage1, "name", "Stage 1"),
 					resource.TestCheckResourceAttr(stage1, "master", master),
+					resource.TestCheckResourceAttr(stage1, "pipeline_metadata.key1", master),
 					testAccCheckPipelineExists(pipelineResourceName, &pipelineRef),
 					testAccCheckPipelineStages(pipelineResourceName, []string{
 						stage1,
@@ -116,7 +121,11 @@ resource "spinnaker_pipeline_jenkins_stage" "s%v" {
 	name     = "Stage %v"
 	master   = "%v"
 	job      = "jenkins/job"
-}`, i, i, master)
+
+	pipeline_metadata = {
+		key%v = "%v" 
+	}
+}`, i, i, master, i, master)
 	}
 
 	return testAccPipelineConfigBasic("app", pipeName) + stages
