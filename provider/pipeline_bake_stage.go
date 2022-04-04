@@ -25,6 +25,9 @@ type bakeStage struct {
 	User               string            `mapstructure:"user"`
 	VarFileName        string            `mapstructure:"var_file_name"`
 	VMType             string            `mapstructure:"vm_type"`
+
+	// Coveo specific
+	PipelineMetadata map[string]string `mapstructure:"pipeline_metadata"`
 }
 
 func newBakeStage() *bakeStage {
@@ -66,6 +69,9 @@ func (s *bakeStage) toClientStage(config *client.Config, refID string) (client.S
 	cs.VarFileName = s.VarFileName
 	cs.VMType = s.VMType
 
+	// Coveo specific
+	cs.PipelineMetadata = s.PipelineMetadata
+
 	return cs, nil
 }
 
@@ -94,6 +100,9 @@ func (*bakeStage) fromClientStage(cs client.Stage) (stage, error) {
 	newStage.User = clientStage.User
 	newStage.VarFileName = clientStage.VarFileName
 	newStage.VMType = clientStage.VMType
+
+	// Coveo specific
+	newStage.PipelineMetadata = clientStage.PipelineMetadata
 
 	return newStage, nil
 }
@@ -160,5 +169,11 @@ func (s *bakeStage) SetResourceData(d *schema.ResourceData) error {
 	if err != nil {
 		return err
 	}
-	return d.Set("vm_type", s.VMType)
+	err = d.Set("vm_type", s.VMType)
+	if err != nil {
+		return err
+	}
+
+	// Coveo specific
+	return d.Set("pipeline_metadata", s.PipelineMetadata)
 }

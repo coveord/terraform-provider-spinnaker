@@ -8,3 +8,5 @@ report.json
 .vscode/*
 .idea/*
 *.iml
+*.crt
+*.key

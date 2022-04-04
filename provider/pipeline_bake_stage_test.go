@@ -34,8 +34,10 @@ func TestAccPipelineBakeStageBasic(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(stage1, "name", "Stage 1"),
 					resource.TestCheckResourceAttr(stage1, "vm_type", vmType),
+					resource.TestCheckResourceAttr(stage1, "pipeline_metadata.key1", vmType),
 					resource.TestCheckResourceAttr(stage2, "name", "Stage 2"),
 					resource.TestCheckResourceAttr(stage2, "vm_type", vmType),
+					resource.TestCheckResourceAttr(stage2, "pipeline_metadata.key2", vmType),
 					testAccCheckPipelineExists(pipelineResourceName, &pipelineRef),
 					testAccCheckPipelineStages(pipelineResourceName, []string{
 						stage1,
@@ -76,8 +78,10 @@ func TestAccPipelineBakeStageBasic(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(stage1, "name", "Stage 1"),
 					resource.TestCheckResourceAttr(stage1, "vm_type", newVMType),
+					resource.TestCheckResourceAttr(stage1, "pipeline_metadata.key1", newVMType),
 					resource.TestCheckResourceAttr(stage2, "name", "Stage 2"),
 					resource.TestCheckResourceAttr(stage2, "vm_type", newVMType),
+					resource.TestCheckResourceAttr(stage2, "pipeline_metadata.key2", newVMType),
 					testAccCheckPipelineExists(pipelineResourceName, &pipelineRef),
 					testAccCheckPipelineStages(pipelineResourceName, []string{
 						stage1,
@@ -90,6 +94,7 @@ func TestAccPipelineBakeStageBasic(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(stage1, "name", "Stage 1"),
 					resource.TestCheckResourceAttr(stage1, "vm_type", vmType),
+					resource.TestCheckResourceAttr(stage1, "pipeline_metadata.key1", vmType),
 					testAccCheckPipelineExists(pipelineResourceName, &pipelineRef),
 					testAccCheckPipelineStages(pipelineResourceName, []string{
 						stage1,
@@ -115,7 +120,11 @@ resource "spinnaker_pipeline_bake_stage" "s%v" {
 	pipeline = "${spinnaker_pipeline.test.id}"
 	name     = "Stage %v"
 	vm_type  = "%v"
-}`, i, i, vmType)
+
+	pipeline_metadata = {
+		key%v = "%v"
+	}
+}`, i, i, vmType, i, vmType)
 	}
 
 	return testAccPipelineConfigBasic("app", pipeName) + stages

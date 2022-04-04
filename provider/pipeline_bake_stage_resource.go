@@ -109,6 +109,11 @@ func pipelineBakeStageResource() *schema.Resource {
 				Optional:    true,
 				Default:     "hvm",
 			},
+			// Coveo specific
+			"pipeline_metadata": {
+				Type:     schema.TypeMap,
+				Optional: true,
+			},
 		}),
 	}
 }

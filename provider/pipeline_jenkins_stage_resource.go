@@ -52,6 +52,11 @@ func pipelineJenkinsStageResource() *schema.Resource {
 				Description: "Name of the property file to use for results",
 				Optional:    true,
 			},
+			// Coveo specific
+			"pipeline_metadata": {
+				Type:     schema.TypeMap,
+				Optional: true,
+			},
 		}),
 	}
 }
