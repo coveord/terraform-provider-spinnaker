@@ -175,10 +175,5 @@ func (s *bakeStage) SetResourceData(d *schema.ResourceData) error {
 	}
 
 	// Coveo specific
-	err = d.Set("pipeline_metadata", s.PipelineMetadata)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return d.Set("pipeline_metadata", s.PipelineMetadata)
 }

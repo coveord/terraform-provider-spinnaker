@@ -20,7 +20,4 @@ func TestRegisterAmisStageGetType(t *testing.T) {
 	if registerAmisStage.GetType() != RegisterAmisStageType {
 		t.Fatalf("Bake stage GetType() should be %s, not \"%s\"", RegisterAmisStageType, registerAmisStage.GetType())
 	}
-	if registerAmisStage.Type != RegisterAmisStageType {
-		t.Fatalf("Bake stage Type should be %s, not \"%s\"", RegisterAmisStageType, registerAmisStage.Type)
-	}
 }
