@@ -10,3 +10,4 @@ report.json
 *.iml
 *.crt
 *.key
+.env
