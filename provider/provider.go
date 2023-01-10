@@ -15,6 +15,7 @@ type Services struct {
 	ApplicationService  *client.ApplicationService
 	CanaryConfigService *client.CanaryConfigService
 	PipelineService     *client.PipelineService
+	CronService         *client.CronService
 }
 
 // Provider for terraform
@@ -124,6 +125,7 @@ func Provider() terraform.ResourceProvider {
 			"spinnaker_pipeline_jenkins_trigger":  pipelineJenkinsTriggerResource(""),
 			"spinnaker_pipeline_pipeline_trigger": pipelinePipelineTriggerResource(),
 			"spinnaker_pipeline_webhook_trigger":  pipelineWebhookTriggerResource(),
+			"spinnaker_pipeline_cron_trigger":     pipelineCRONTriggerResource(),
 		},
 
 		ConfigureFunc: providerConfigure,
@@ -149,5 +151,6 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		ApplicationService:  &client.ApplicationService{Client: c},
 		CanaryConfigService: &client.CanaryConfigService{Client: c},
 		PipelineService:     &client.PipelineService{Client: c},
+		CronService:         &client.CronService{Client: c},
 	}, nil
 }
